@@ -1,0 +1,14 @@
+[Unit]
+Description=ZJU VPN Service
+After=network.target
+Requires=xl2tpd.service
+After=xl2tpd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/vpn4zju -c
+ExecStop=/usr/bin/vpn4zju -d
+
+[Install]
+WantedBy=multi-user.target
