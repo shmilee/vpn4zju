@@ -1,7 +1,7 @@
 # Maintainer: shmilee <echo c2htaWxlZS56anVAZ21haWwuY29tCg==|base64 -d>
 
 pkgname=vpn4zju
-pkgver=1.0
+pkgver=1.1
 pkgrel=1
 pkgdesc="A utility for ZJU school L2TP VPN."
 arch=("any")
