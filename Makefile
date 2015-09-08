@@ -1,7 +1,6 @@
 all: install
 
 install:
-	install -dm755 $(DESTDIR)/var/run/xl2tpd
 	install -Dm755 vpn4zju $(DESTDIR)/usr/bin/vpn4zju
 	install -Dm644 vpn4zju.service $(DESTDIR)/usr/lib/systemd/system/vpn4zju.service
 	install -Dm644 options.xl2tpd.zju $(DESTDIR)/etc/ppp/options.xl2tpd.zju
