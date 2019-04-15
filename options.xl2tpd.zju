@@ -1,3 +1,4 @@
 noauth
 proxyarp
 defaultroute
+mtu 1440
