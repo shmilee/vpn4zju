@@ -48,7 +48,7 @@ def main(args):
         keyring.set_password("zjuvpn", "password", password)
         print("Done.")
     elif args.action == 'login':
-        print('Logging in...')
+        print('Logging in ZJUWLAN ...')
         response = requests.post(
             post_url, data=post_login_data, headers=post_headers)
         response.encoding = 'utf-8'
@@ -57,7 +57,7 @@ def main(args):
         else:
             print(response.text)
     elif args.action == 'logout':
-        print('Logging out...')
+        print('Logging out ZJUWLAN ...')
         response = requests.post(
             post_url, data=post_logout_data, headers=post_headers)
         response.encoding = 'utf-8'
