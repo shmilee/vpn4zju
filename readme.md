@@ -23,6 +23,17 @@
 
 5. 日志查看， `journalctl -u vpn4zju` and `journalctl -u xl2tpd`.
 
+6. 默认 `PPP device` 是 `ppp0` 或 `ppp1`, 如果系统中 `ppp` 打过布丁
+   [pppd: allow use of arbitrary interface names ](https://github.com/paulusmack/ppp/commit/bbcdc4366bbee6c3f4e1ddda31e4eec8c1b3ccc2)
+   可修改 `/etc/ppp/options.xl2tpd.zju`, 设置 `ifname`.
+   如设置 `ifname zjuvpn` 之后 `PPP device` 就变成 `zjuvpn`.
+   ```bash
+   [$] sudo vpn4zju -c
+   [MSG] Trying to bring up VPN... 1 secs... Done!
+   [MSG] Detected gateway: 10.12.74.1, PPP device: zjuvpn
+   [MSG] Setting up route table...  Done!   
+   ```
+
 参考致谢
 ========
 
