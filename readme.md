@@ -34,6 +34,10 @@
    [MSG] Setting up route table...  Done!   
    ```
 
+7. python 脚本 `zjuwlan`, 用于登录无线. `zjuwlan -h` 查看使用帮助.
+   依赖 `keyring` 存用户名、密码, `requests` 发送请求.
+   配合 `wicd` 可在连接无线后自动登录.
+
 参考致谢
 ========
 
