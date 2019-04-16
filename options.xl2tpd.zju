@@ -2,3 +2,4 @@ noauth
 proxyarp
 defaultroute
 mtu 1440
+#ifname zjuvpn

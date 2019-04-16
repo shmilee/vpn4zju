@@ -94,15 +94,18 @@ EOF
 function _init {
     _GW=$(ip route get $SERVER_ADDR 2> /dev/null | grep via | awk '{print $3}')
     _IF=$(ip route get $SERVER_ADDR 2> /dev/null | grep via | awk '{print $5}')
-    if [ $(expr length $_GW) -ge 6 ]; then
-        _PPP=ppp0 #YQ
-    else
-        _PPP=ppp1 #ZJG with Shan Xun, ppp0 is used
+    _IFNAME="$(sed -n '/^ifname/ s/ifname //p' $L2TPD_OPTFILE)"
+    if [ -z "$_IFNAME" ]; then
+        if [ $(expr length $_GW) -ge 6 ]; then
+            _IFNAME=ppp0 #YQ
+        else
+            _IFNAME=ppp1 #ZJG with Shan Xun, ppp0 is used
+        fi
     fi
 }
 
 function ppp_alive {
-    if ip addr show | grep "inet.*$_PPP" > /dev/null; then
+    if ip addr show | grep "inet.*$_IFNAME" > /dev/null; then
         return 0  # Yes, connected
     else
         return 1
@@ -110,16 +113,16 @@ function ppp_alive {
 }
 
 function setroute {
-    _VPN_GW=$(ip addr show dev $_PPP | grep "inet.*$_PPP" | awk '{print $2}')
+    _VPN_GW=$(ip addr show dev $_IFNAME | grep "inet.*$_IFNAME" | awk '{print $2}')
 
     if [ "$1" == up ]; then
-        echo "[MSG] Detected gateway: $_GW, PPP device: $_PPP"
+        echo "[MSG] Detected gateway: $_GW, PPP device: $_IFNAME"
         echo -n "[MSG] Setting up route table...  "
         for _i in ${_rt[@]}; do
             ip route add $_i via $_GW dev $_IF
         done
         ip route del default
-        ip route add default via $_VPN_GW dev $_PPP
+        ip route add default via $_VPN_GW dev $_IFNAME
         echo "Done!"
     elif [ "$1" == down ]; then
         echo -n "[MSG] Reseting default route... "
