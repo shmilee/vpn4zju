@@ -5,6 +5,7 @@
 
 import os
 import sys
+import time
 import argparse
 import configparser
 import getpass
@@ -66,7 +67,7 @@ def get_k_user_pass():
     return username, password
 
 
-def get_post_data(action):
+def get_post_response(action):
     if getpass.getuser() == 'root':
         username, password = get_v_user_pass()
     else:
@@ -74,7 +75,7 @@ def get_post_data(action):
     if not(username and password):
         sys.exit(1)
     if action == 'login':
-        return dict(
+        post_data = dict(
             action='login',
             username=username,
             password=password,
@@ -85,11 +86,15 @@ def get_post_data(action):
             save_me=0,
             ajax=1)
     elif action == 'logout':
-        return dict(
+        post_data = dict(
             action='logout',
             username=username,
             password=password,
             ajax=1)
+    response = requests.post(
+        post_url, data=post_data, headers=post_headers)
+    response.encoding = 'utf-8'
+    return response
 
 
 def main(args):
@@ -104,18 +109,21 @@ def main(args):
         os.system('sudo vpn4zju -cfg')
     elif args.action == 'login':
         print('Logging in ZJUWLAN ...')
-        response = requests.post(
-            post_url, data=get_post_data('login'), headers=post_headers)
-        response.encoding = 'utf-8'
+        response = get_post_response('login')
+        if response.text.startswith('E2532:'):
+            print(response.text)
+            # The two authentication interval cannot be less than 10 seconds.
+            for i in range(1,11):
+                print('Login after %d seconds.' % i, end='\r')
+                time.sleep(1)
+            response = get_post_response('login')
         if response.text.startswith('login_ok'):
             print('Login successful.')
         else:
             print(response.text)
     elif args.action == 'logout':
         print('Logging out ZJUWLAN ...')
-        response = requests.post(
-            post_url, data=get_post_data('logout'), headers=post_headers)
-        response.encoding = 'utf-8'
+        response = get_post_response('logout')
         if response.text.startswith('网络已断开'):
             print('Logout successful.')
         else:
