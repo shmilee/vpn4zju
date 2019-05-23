@@ -34,8 +34,8 @@ CHAP_SECRET_FILE=/etc/ppp/chap-secrets
 ####################
 # functions
 ####################
-function usage {
-    echo "A utility for ZJU school L2TP VPN."
+usage() {
+    echo "A utility for ZJU school L2TP VPN. v2.0"
     echo "Usage: $0 [ACTION]"
     echo
     echo "Actions: "
@@ -46,7 +46,7 @@ function usage {
     echo
 }
 
-function check_files {
+check_files() {
     if [ ! -e $L2TPD_OPTFILE ]; then
         echo "[ERR] lost $L2TPD_OPTFILE"
         return 1
@@ -67,7 +67,7 @@ EOF
     fi
 }
 
-function test_connection {
+test_connection() {
     if [ $_WAIT == Y ]; then
         local i=1
         _uptime=$(cat /proc/uptime | sed 's/\..*$//')
@@ -91,7 +91,7 @@ This can be caused by:
 EOF
     return 1
 }
-function _init {
+_init() {
     _GW=$(ip route get $SERVER_ADDR 2> /dev/null | grep via | awk '{print $3}')
     _IF=$(ip route get $SERVER_ADDR 2> /dev/null | grep via | awk '{print $5}')
     _IFNAME="$(sed -n '/^ifname/ s/ifname //p' $L2TPD_OPTFILE)"
@@ -104,7 +104,7 @@ function _init {
     fi
 }
 
-function ppp_alive {
+ppp_alive() {
     if ip addr show | grep "inet.*$_IFNAME" > /dev/null; then
         return 0  # Yes, connected
     else
@@ -112,7 +112,7 @@ function ppp_alive {
     fi
 }
 
-function setroute {
+setroute() {
     _VPN_GW=$(ip addr show dev $_IFNAME | grep "inet.*$_IFNAME" | awk '{print $2}')
 
     if [ "$1" == up ]; then
@@ -137,7 +137,7 @@ function setroute {
     fi
 }
 
-function configure {
+configure() {
     echo "[MSG] Configure L2TP VPN for ZJU."
     read -p "Username @[acd] : " username
     read -s -p "Password : " password
@@ -175,7 +175,7 @@ EOF
     echo "[MSG] Configuration saved."
 }
 
-function connect {
+connect() {
     echo "c $L2TPD_LAC" > $L2TPD_CONTROL_FILE
     for i in $(seq 0 $TIMEOUT); do
         if ppp_alive; then
@@ -191,7 +191,7 @@ function connect {
     return 1
 }
 
-function disconnect {
+disconnect() {
     setroute down
     echo -n "[MSG] Disconnecting VPN ... "
     echo "d $L2TPD_LAC" > $L2TPD_CONTROL_FILE
@@ -199,20 +199,24 @@ function disconnect {
     echo "Done!"
 }
 
+root_pre() {
+    if [ "$UID" != "0" ]; then
+        echo "[ERR] You must be super user to run this utility!"
+        exit 1
+    fi
+    check_files || exit 1
+    test_connection || exit 1
+    _init
+}
+
 ####################
 # MAIN
 ####################
-if [ "$UID" != "0" ]; then
-    echo "[ERR] You must be super user to run this utility!"
-    exit 1
-fi
-check_files || exit 1
-test_connection || exit 1
-_init
-
 if [ x"$1" == 'x-cfg' ]; then
+    root_pre
     configure
 elif [ x"$1" == 'x-c' ]; then
+    root_pre
     if ! grep "^\[lac $L2TPD_LAC\]" $L2TPD_CFG_FILE 2>&1 > /dev/null; then
         echo "[MSG] Run ACTION Configure first."
         echo "[MSG] If you run me with systemd, please restart xl2tpd after configuration."
@@ -228,6 +232,7 @@ elif [ x"$1" == 'x-c' ]; then
         connect || exit 1
     fi
 elif [ x"$1" == 'x-d' ]; then
+    root_pre
     if ! ppp_alive ; then
         echo "[ERR] VPN not connected."
         exit 1
