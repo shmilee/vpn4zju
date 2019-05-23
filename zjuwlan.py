@@ -132,7 +132,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="Login/Logout ZJUWLAN v0.1 by shmilee@zju.edu.cn",
+        description="Login/Logout ZJUWLAN v2.0 by shmilee@zju.edu.cn",
         epilog="Password stored by keyring is used for current USER,\n"
         "and stored by vpn4zju(ppp) is used for root USER.",
         formatter_class=argparse.RawTextHelpFormatter)
